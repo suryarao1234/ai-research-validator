@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Research Validator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .api-key-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input[type="text"], input[type="password"], textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            min-height: 200px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-item {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .result-item h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .claim {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border-left: 4px solid #2196F3;
+        }
+
+        .source {
+            background: #f0f7ff;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+
+        .source a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .source a:hover {
+            text-decoration: underline;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+
+        .error {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            color: #721c24;
+        }
+
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            color: #155724;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196F3;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .info-box li {
+            margin: 5px 0;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            border-color: #667eea;
+            background: #e7f3ff;
+            font-weight: 600;
+        }
+
+        .mode-btn:hover {
+            border-color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 AI Research Validator</h1>
+            <p>Verify AI research claims with credible sources using Gemini AI</p>
+        </div>
+
+        <div class="content">
+            <div class="api-key-section">
+                <div class="input-group">
+                    <label for="apiKey">Gemini API Key:</label>
+                    <input type="password" id="apiKey" placeholder="Enter your Gemini API key">
+                    <small style="color: #666; display: block; margin-top: 5px;">
+                        Get your API key from <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>
+                    </small>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Validation Mode:</label>
+                <div class="mode-selector">
+                    <div class="mode-btn active" onclick="setMode('quick')" id="quickBtn">
+                        ⚡ Quick Mode
+                        <div style="font-size: 0.85em; color: #666;">Standard web search</div>
+                    </div>
+                    <div class="mode-btn" onclick="setMode('deep')" id="deepBtn">
+                        🔬 Deep Research
+                        <div style="font-size: 0.85em; color: #666;">Includes social & specialized sources</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>📋 Validation Criteria:</strong>
+                <ul>
+                    <li>Requires at least 2 credible sources for validation</li>
+                    <li>At least one source must be less than 24 months old</li>
+                    <li>Special attention to hedging language: "likely," "reportedly," "some sources suggest," "around X," "expected to be"</li>
+                    <li>Financial data exceptions for historical analysis</li>
+                </ul>
+            </div>
+
+            <div class="input-group">
+                <label for="researchText">Research Text:</label>
+                <textarea id="researchText" placeholder="Paste your AI research text here..."></textarea>
+            </div>
+
+            <div class="input-group">
+                <label for="fileInput">Or Upload File (TXT, PDF, DOCX, PPTX):</label>
+                <input type="file" id="fileInput" accept=".txt,.pdf,.docx,.pptx">
+            </div>
+
+            <button class="btn" onclick="validateResearch()">Validate Research</button>
+
+            <div id="results"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        let validationMode = 'quick';
+
+        function setMode(mode) {
+            validationMode = mode;
+            document.getElementById('quickBtn').classList.remove('active');
+            document.getElementById('deepBtn').classList.remove('active');
+            document.getElementById(mode === 'quick' ? 'quickBtn' : 'deepBtn').classList.add('active');
+        }
+
+        async function extractTextFromPPTX(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const zip = await JSZip.loadAsync(arrayBuffer);
+            let text = '';
+            
+            const slideFiles = [];
+            zip.forEach((relativePath, zipEntry) => {
+                if (relativePath.startsWith('ppt/slides/slide') && relativePath.endsWith('.xml')) {
+                    slideFiles.push({ path: relativePath, entry: zipEntry });
+                }
+            });
+            
+            slideFiles.sort((a, b) => {
+                const numA = parseInt(a.path.match(/slide(\d+)\.xml/)[1]);
+                const numB = parseInt(b.path.match(/slide(\d+)\.xml/)[1]);
+                return numA - numB;
+            });
+            
+            for (const slideFile of slideFiles) {
+                const content = await slideFile.entry.async('text');
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(content, 'text/xml');
+                
+                const textElements = xmlDoc.getElementsByTagName('a:t');
+                for (let i = 0; i < textElements.length; i++) {
+                    text += textElements[i].textContent + ' ';
+                }
+                text += '\n\n';
+            }
+            
+            return text;
+        }
+
+        async function extractTextFromFile(file) {
+            const fileType = file.name.split('.').pop().toLowerCase();
+            
+            if (fileType === 'txt') {
+                return await file.text();
+            } else if (fileType === 'pdf') {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                let text = '';
+                
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const content = await page.getTextContent();
+                    text += content.items.map(item => item.str).join(' ') + '\n';
+                }
+                
+                return text;
+            } else if (fileType === 'docx') {
+                const arrayBuffer = await file.arrayBuffer();
+                const result = await mammoth.extractRawText({ arrayBuffer });
+                return result.value;
+            } else if (fileType === 'pptx') {
+                return await extractTextFromPPTX(file);
+            }
+            
+            throw new Error('Unsupported file type');
+        }
+
+        async function validateResearch() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const textInput = document.getElementById('researchText').value.trim();
+            const fileInput = document.getElementById('fileInput').files[0];
+            const resultsDiv = document.getElementById('results');
+
+            if (!apiKey) {
+                resultsDiv.innerHTML = '<div class="error">Please enter your Gemini API key.</div>';
+                return;
+            }
+
+            let researchText = textInput;
+
+            if (fileInput) {
+                const fileType = fileInput.name.split('.').pop().toLowerCase();
+                resultsDiv.innerHTML = `<div class="loading"><div class="spinner"></div><p>Extracting text from ${fileType.toUpperCase()} file...</p></div>`;
+                try {
+                    researchText = await extractTextFromFile(fileInput);
+                    if (!researchText.trim()) {
+                        resultsDiv.innerHTML = '<div class="error">No text could be extracted from the file.</div>';
+                        return;
+                    }
+                } catch (error) {
+                    resultsDiv.innerHTML = `<div class="error">Error reading file: ${error.message}</div>`;
+                    return;
+                }
+            }
+
+            if (!researchText) {
+                resultsDiv.innerHTML = '<div class="error">Please provide research text or upload a file.</div>';
+                return;
+            }
+
+            resultsDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>Validating research with Gemini 3 Flash... This may take a moment.</p></div>';
+
+            try {
+                const prompt = `You are a research validator. Analyze the following AI research text and validate its claims.
+
+VALIDATION MODE: ${validationMode === 'deep' ? 'DEEP RESEARCH - Include social media and specialized sources like Reddit, X (Twitter), LinkedIn, and Wikipedia' : 'QUICK MODE - Standard web search'}
+
+VALIDATION REQUIREMENTS:
+1. Extract key factual claims from the research
+2. For EACH claim, find at least 2 credible sources to verify it
+3. At least ONE source for each claim must be from the last 24 months (published after ${getDateMonthsAgo(24)})
+4. Exception: Financial/historical data older than 24 months is acceptable if it's historical analysis
+5. Pay SPECIAL ATTENTION to hedging language and verify these claims thoroughly:
+   - "likely", "reportedly", "some sources suggest"
+   - "around X number", "approximately", "expected to be"
+   - Any vague or uncertain language
+
+For each claim you identify, provide:
+- The claim itself (quoted from the text)
+- Whether it contains hedging language (true/false)
+- Verification status (verified/unverified/partially verified)
+- At least 2 sources with:
+  * Source title
+  * Publication date
+  * URL or reference
+  * Brief excerpt supporting or contradicting the claim
+  * Credibility assessment
+
+Format your response as JSON:
+{
+  "claims": [
+    {
+      "claim": "exact quote from text",
+      "hasHedgingLanguage": true/false,
+      "hedgingTerms": ["list of hedging words found"],
+      "verificationStatus": "verified/unverified/partially verified",
+      "sources": [
+        {
+          "title": "source title",
+          "publicationDate": "YYYY-MM-DD",
+          "url": "URL",
+          "excerpt": "relevant excerpt",
+          "credibilityRating": "high/medium/low",
+          "isRecent": true/false
+        }
+      ],
+      "analysis": "detailed analysis of the claim"
+    }
+  ],
+  "overallAssessment": "summary of research credibility",
+  "warnings": ["list of concerns or issues found"]
+}
+
+RESEARCH TEXT:
+${researchText}`;
+
+                const modelId = 'gemini-1.5-flash-latest';
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
+
+                let response;
+                try {
+                    response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [{
+                                    text: prompt
+                                }]
+                            }],
+                            generationConfig: {
+                                temperature: 0.7,
+                                maxOutputTokens: 8192,
+                            }
+                        })
+                    });
+                } catch (fetchError) {
+                    throw new Error('Network error: Unable to connect to Gemini API. This might be due to CORS restrictions. Please ensure you are using a valid API key and have a stable internet connection. Error: ' + fetchError.message);
+                }
+
+                if (!response.ok) {
+                    let errorMessage = 'API request failed';
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.error?.message || errorMessage;
+                        if (response.status === 400) {
+                            errorMessage = 'Invalid API key or request. Please check your Gemini API key.';
+                        } else if (response.status === 429) {
+                            errorMessage = 'Rate limit exceeded. Please try again in a moment.';
+                        } else if (response.status === 403) {
+                            errorMessage = 'API key is invalid or doesn\'t have permission. Please verify your key.';
+                        }
+                    } catch (e) {
+                        errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                const data = await response.json();
+                
+                if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+                    throw new Error('Invalid response from Gemini API. Please try again.');
+                }
+                
+                const resultText = data.candidates[0].content.parts[0].text;
+                
+                let jsonString = resultText.trim();
+                if (jsonString.startsWith('```')) {
+                    jsonString = jsonString.replace(/^```json\n?/, '').replace(/```$/, '').trim();
+                }
+                
+                const validationResults = JSON.parse(jsonString);
+                displayResults(validationResults);
+
+            } catch (error) {
+                console.error("Validation API Error:", error);
+                if (error.message.includes('JSON')) {
+                    resultsDiv.innerHTML = `<div class="error"><strong>Error:</strong> The model returned non-JSON data or the JSON was malformed. Please try again or simplify the input text.</div>`;
+                } else {
+                    resultsDiv.innerHTML = `<div class="error"><strong>Error:</strong> ${error.message}</div>`;
+                }
+            }
+        }
+
+        function getDateMonthsAgo(months) {
+            const date = new Date();
+            date.setMonth(date.getMonth() - months);
+            return date.toISOString().split('T')[0];
+        }
+
+        function displayResults(results) {
+            const resultsDiv = document.getElementById('results');
+            let html = '<div class="results">';
+            
+            html += `<div class="success"><strong>Overall Assessment:</strong> ${results.overallAssessment}</div>`;
+            
+            if (results.warnings && results.warnings.length > 0) {
+                html += '<div class="warning"><strong>⚠️ Warnings:</strong><ul>';
+                results.warnings.forEach(warning => {
+                    html += `<li>${warning}</li>`;
+                });
+                html += '</ul></div>';
+            }
+
+            results.claims.forEach((claim, index) => {
+                html += `<div class="result-item">`;
+                html += `<h3>Claim ${index + 1}</h3>`;
+                html += `<div class="claim">${claim.claim}</div>`;
+                
+                if (claim.hasHedgingLanguage) {
+                    html += `<div class="warning">⚠️ Contains hedging language: ${claim.hedgingTerms.join(', ')}</div>`;
+                }
+                
+                html += `<p><strong>Status:</strong> <span style="color: ${getStatusColor(claim.verificationStatus)}; font-weight: bold;">${claim.verificationStatus.toUpperCase()}</span></p>`;
+                html += `<p><strong>Analysis:</strong> ${claim.analysis}</p>`;
+                
+                html += '<div style="margin-top: 15px;"><strong>Sources:</strong></div>';
+                
+                const recentSources = claim.sources.filter(s => s.isRecent).length;
+                if (recentSources === 0) {
+                    html += '<div class="warning">⚠️ No sources from the last 24 months found!</div>';
+                }
+                
+                claim.sources.forEach((source, sIndex) => {
+                    html += `<div class="source">`;
+                    html += `<strong>${sIndex + 1}. ${source.title}</strong><br>`;
+                    html += `📅 Published: ${source.publicationDate} ${source.isRecent ? '<span style="color: green;">✓ Recent</span>' : '<span style="color: orange;">⚠️ Older than 24 months</span>'}<br>`;
+                    html += `🔗 <a href="${source.url}" target="_blank">${source.url}</a><br>`;
+                    html += `📊 Credibility: ${source.credibilityRating}<br>`;
+                    html += `📝 ${source.excerpt}`;
+                    html += `</div>`;
+                });
+                
+                html += `</div>`;
+            });
+            
+            html += '</div>';
+            resultsDiv.innerHTML = html;
+        }
+
+        function getStatusColor(status) {
+            switch(status.toLowerCase()) {
+                case 'verified': return '#28a745';
+                case 'partially verified': return '#ffc107';
+                case 'unverified': return '#dc3545';
+                default: return '#666';
+            }
+        }
+    </script>
+</body>
+</html>
